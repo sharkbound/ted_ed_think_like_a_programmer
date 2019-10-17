@@ -1,7 +1,9 @@
+from collections import namedtuple
 from random import randint
 from statistics import mean
+from typing import Callable, Any
 
-from stringutil import auto_str_filtered
+from stringutil import auto_str_filtered, auto_str
 
 
 def rand_dial_position():
@@ -12,7 +14,6 @@ def sign(i):
     return -1 if i < 0 else 0 if not i else 1
 
 
-@auto_str_filtered('correct_position'.__ne__)
 class Lock:
     POSITION_COUNT = 100
 
@@ -20,9 +21,9 @@ class Lock:
         self.reset()
 
     def reset(self):
-        self.correct_position = rand_dial_position()
-        self.current_position = rand_dial_position()
-        self.recorded_dial_position = self.current_position
+        self.correct_pin = rand_dial_position()
+        self.current_pin = rand_dial_position()
+        self.recorded_pin = self.current_pin
         self.step_count = 0
 
     def _inc_step(self):
@@ -32,46 +33,71 @@ class Lock:
         if not rotation:
             return
 
-        self.current_position = (self.current_position + rotation) % (self.POSITION_COUNT + 1)
+        self.current_pin = (self.current_pin + rotation) % (self.POSITION_COUNT + 1)
 
-        if not self.current_position:
-            self.current_position = 100 if rotation < 0 else 1
+        if not self.current_pin:
+            self.current_pin = 100 if rotation < 0 else 1
 
         if rotation:
             self._inc_step()
 
+    def spin_to(self, pin):
+        offset = abs(self.current_pin - pin) * (-1 if pin < self.current_pin else 1)
+        self.spin(offset)
+
     def record(self):
-        self.recorded_dial_position = self.current_position
+        self.recorded_pin = self.current_pin
         self._inc_step()
 
     @property
     def recorded(self):
-        return self.recorded_dial_position
+        return self.recorded_pin
 
-    @property
-    def is_green(self):
-        return self.current_position == self.correct_position
+    def __bool__(self):
+        return self.current_pin == self.correct_pin
 
-    @property
-    def is_red(self):
-        return not self.is_green
+    def __str__(self):
+        return f'<LOCK pin={self.current_pin}>'
 
-    def solve_using(self, solver, times=1000):
-        solve_step_counts = []
 
-        for _ in range(times):
-            while self.is_red:
-                solver(self)
+def solve_lock(solver, setup: Callable[[Lock], Any] = lambda lock: None):
+    lock = Lock()
+    setup(lock)
 
-            solve_step_counts.append(self.step_count)
-            self.reset()
+    for i in range(1, 101):
+        solver(lock)
 
-        return mean(solve_step_counts), solve_step_counts
+    return lock
+
+
+Result = namedtuple('Result', 'mean counts')
+
+
+def solve_with_mean(solver, times):
+    step_counts = []
+    lock = Lock()
+    for _ in range(times):
+        solver(lock)
+        step_counts.append(lock.step_count)
+        lock.reset()
+
+    return Result(mean(step_counts), step_counts)
 
 
 def solver(lock: Lock):
-    lock.spin(1)
+    def check_range(initial, size, step):
+        if lock:
+            return lock
+
+        lock.spin_to(initial)
+        for _ in range(size):
+            if lock:
+                break
+            lock.spin(step)
+
+        return lock
+
+    return check_range(0, 100, 1)
 
 
-average, step_counts = Lock().solve_using(solver)
-print(f'STEP COUNTS: {step_counts}\n\nMEAN: {average}')
+print(solve_with_mean(solver, 100))
