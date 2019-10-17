@@ -29,11 +29,13 @@ class Lock:
         self.step_count += 1
 
     def spin(self, rotation: int):
-        self.current_position = (self.current_position + rotation) % self.POSITION_COUNT
-        if not self.current_position and rotation < 1:
-            self.current_position = self.POSITION_COUNT
-        elif not self.current_position:
-            self.current_position = 1
+        if not rotation:
+            return
+
+        self.current_position = (self.current_position + rotation) % (self.POSITION_COUNT + 1)
+
+        if not self.current_position:
+            self.current_position = 100 if rotation < 0 else 1
 
         if rotation:
             self._inc_step()
@@ -61,14 +63,15 @@ class Lock:
             while self.is_red:
                 solver(self)
 
-            steps = self.step_count
-            solve_step_counts.append(steps)
+            solve_step_counts.append(self.step_count)
             self.reset()
 
-        return mean(solve_step_counts)
+        return mean(solve_step_counts), solve_step_counts
 
 
 def solver(lock: Lock):
-    lock.spin(-1)
+    lock.spin(1)
 
-print(Lock().solve_using(solver))
+
+average, step_counts = Lock().solve_using(solver)
+print(f'STEP COUNTS: {step_counts}\n\nMEAN: {average}')
