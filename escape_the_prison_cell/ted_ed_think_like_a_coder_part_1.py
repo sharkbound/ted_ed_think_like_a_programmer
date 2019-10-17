@@ -1,9 +1,8 @@
-from collections import namedtuple
+from random import randint
+from dataclasses import field, dataclass
 from random import randint
 from statistics import mean
-from typing import Callable, Any
-
-from stringutil import auto_str_filtered, auto_str
+from typing import Callable, Any, List
 
 
 def rand_dial_position():
@@ -70,7 +69,10 @@ def solve_lock(solver, setup: Callable[[Lock], Any] = lambda lock: None):
     return lock
 
 
-Result = namedtuple('Result', 'mean counts')
+@dataclass
+class Result:
+    mean: str
+    steps: List[int] = field(repr=False)
 
 
 def solve_with_mean(solver, times):
@@ -100,4 +102,5 @@ def solver(lock: Lock):
     return check_range(0, 100, 1)
 
 
-print(solve_with_mean(solver, 100))
+times = 100
+print(solve_with_mean(solver, times))
