@@ -1,12 +1,7 @@
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Flag, auto
-from random import choice
 from typing import Tuple
-
-
-def randbool():
-    return choice([True, False])
 
 
 class Flags(Flag):
@@ -19,7 +14,7 @@ class Flags(Flag):
 
 all_flags: Tuple[Flags] = tuple(Flags)
 vowels = 'aeiouy'
-re_consecutive_vowel = re.compile(r'(?P<vowel>[aeiouy])(?P=vowel)', flags=re.I)
+re_consecutive = re.compile(r'(?P<char>\w)(?P=char)', flags=re.I)
 re_vowel = re.compile(r'[aeiouy]', flags=re.I)
 
 
@@ -41,9 +36,9 @@ def is_leader(person: Person):
     if person & Flags.glasses:
         bools.append(len(re_vowel.findall(person.name)) == 2)
     if person & Flags.red_hair:
-        bools.append(bool(re_consecutive_vowel.search(person.name)))
+        bools.append(bool(re_consecutive.search(person.name)))
     if person & Flags.no_glasses:
-        bools.append(len(re_consecutive_vowel.findall(person.name)) == 3)
+        bools.append(len(re_consecutive.findall(person.name)) == 3)
 
     return all(bools)
 
