@@ -6,10 +6,10 @@ from typing import Tuple
 
 class Flags(Flag):
     none = 0
-    glasses = auto()
-    green_eyes = auto()
-    red_hair = auto()
-    no_glasses = auto()
+    GLASSES = auto()
+    GREEN_EYES = auto()
+    RED_HAIR = auto()
+    NO_GLASSES = auto()
 
 
 all_flags: Tuple[Flags] = tuple(Flags)
@@ -28,27 +28,27 @@ class Person:
 
 
 def is_leader(person: Person):
-    if not person & Flags.green_eyes:
+    if not person & Flags.GREEN_EYES:
         return False
 
     bools = [True]
 
-    if person & Flags.glasses:
+    if person & Flags.GLASSES:
         bools.append(len(re_vowel.findall(person.name)) == 2)
-    if person & Flags.red_hair:
+    if person & Flags.RED_HAIR:
         bools.append(bool(re_consecutive.search(person.name)))
-    if person & Flags.no_glasses:
+    if person & Flags.NO_GLASSES:
         bools.append(len(re_consecutive.findall(person.name)) == 3)
 
     return all(bools)
 
 
 people = [
-    Person('timmy', Flags.no_glasses),
-    Person('james', Flags.no_glasses),
-    Person('none', Flags.glasses | Flags.red_hair),
-    Person('just greaen', Flags.green_eyes | Flags.red_hair),
-    Person('vaal', Flags.glasses | Flags.green_eyes | Flags.red_hair),
+    Person('timmy', Flags.NO_GLASSES),
+    Person('james', Flags.NO_GLASSES),
+    Person('none', Flags.GLASSES | Flags.RED_HAIR),
+    Person('just greaen', Flags.GREEN_EYES | Flags.RED_HAIR),
+    Person('vaal', Flags.GLASSES | Flags.GREEN_EYES | Flags.RED_HAIR),
 ]
 
 for person in people:
