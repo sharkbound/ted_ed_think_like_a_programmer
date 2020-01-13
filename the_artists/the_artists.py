@@ -1,3 +1,4 @@
+from collections import deque
 from random import randint, randrange
 
 import numpy as np
@@ -31,17 +32,17 @@ class Bot:
         self.y += yoff
         return True
 
-    def up(self):
-        return self.move(0, -1)
+    def up(self, times=1):
+        return self.move(0, -1 * times)
 
-    def down(self):
-        return self.move(0, 1)
+    def down(self, times=1):
+        return self.move(0, 1 * times)
 
-    def left(self):
-        return self.move(-1, 0)
+    def left(self, times=1):
+        return self.move(-1 * times, 0)
 
-    def right(self):
-        return self.move(1, 0)
+    def right(self, times=1):
+        return self.move(1 * times, 0)
 
     def paint(self, new_value=1):
         self.picture[self.y, self.x] = new_value
@@ -49,25 +50,52 @@ class Bot:
     def __repr__(self):
         return f'<{self.__class__.__name__} {self.x=} {self.y=}>'
 
+
 def graph(bot: Bot):
     import matplotlib.pyplot as plt
     plt.imshow(bot.picture.grid)
     plt.show()
 
+
 def paint_x(bot: Bot):
+    # get to 0,0
     while bot.up(): pass
     while bot.left(): pass
 
-    bot.paint()
-    while bot.down() and bot.right():
-        bot.paint()
+    queue = deque((bot.picture.grid,))
+    while queue:
+        grid = queue.popleft()
+        if sum(grid.shape) in {0, 2}:
+            bot.paint()
+            break
 
-    while bot.up(): pass
-
-    bot.paint()
-    while bot.down() and bot.left():
         bot.paint()
+        bot.right(grid.shape[1] - 1)
+        bot.paint()
+        bot.down(grid.shape[0] - 1)
+        bot.paint()
+        bot.left(grid.shape[1] - 1)
+        bot.paint()
+        bot.up(grid.shape[0] - 2)
+        bot.right()
+        queue.append(grid[1:-1, 1:-1])
+
+    # alternative solution:
+    #
+    # while bot.up(): pass
+    # while bot.left(): pass
+    #
+    # bot.paint()
+    # while bot.down() and bot.right():
+    #     bot.paint()
+    #
+    # while bot.up(): pass
+    #
+    # bot.paint()
+    # while bot.down() and bot.left():
+    #     bot.paint()
 
     graph(bot)
+
 
 paint_x(Bot())

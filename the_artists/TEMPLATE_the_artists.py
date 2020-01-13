@@ -1,19 +1,7 @@
+from collections import deque
 from random import randint, randrange
 
-try:
-    import numpy as np
-except ImportError:
-    print(f'numpy not installed, install it using this command for windows: '
-          f'\n\n\t\tpy -m pip install numpy\n\t\t'
-          f'OR\n\t\tpip install numpy')
-    exit()
-
-"""
-NOTE:
-the class are not important, they are just supporting code to allow all of this to work
-to write your solution,
-edit the `paint_x` function
-"""
+import numpy as np
 
 
 class Picture:
@@ -44,17 +32,17 @@ class Bot:
         self.y += yoff
         return True
 
-    def up(self):
-        return self.move(0, -1)
+    def up(self, times=1):
+        return self.move(0, -1 * times)
 
-    def down(self):
-        return self.move(0, 1)
+    def down(self, times=1):
+        return self.move(0, 1 * times)
 
-    def left(self):
-        return self.move(-1, 0)
+    def left(self, times=1):
+        return self.move(-1 * times, 0)
 
-    def right(self):
-        return self.move(1, 0)
+    def right(self, times=1):
+        return self.move(1 * times, 0)
 
     def paint(self, new_value=1):
         self.picture[self.y, self.x] = new_value
@@ -64,14 +52,7 @@ class Bot:
 
 
 def graph(bot: Bot):
-    try:
-        import matplotlib.pyplot as plt
-    except ImportError:
-        print(
-            f'matplotlib not installed, '
-            f'install it using this command for windows: \n\n\t\tpy -m pip install matplotlib\n\t\tOR\n\t\tpip install matplotlib')
-        exit()
-
+    import matplotlib.pyplot as plt
     plt.imshow(bot.picture.grid)
     plt.show()
 
