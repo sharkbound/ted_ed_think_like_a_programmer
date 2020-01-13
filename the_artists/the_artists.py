@@ -62,10 +62,10 @@ def paint_x(bot: Bot):
     while bot.up(): pass
     while bot.left(): pass
 
-    queue = deque((bot.picture.grid,))
-    while queue:
-        grid = queue.popleft()
-        if sum(grid.shape) in {0, 2}:
+    grids = deque((bot.picture.grid,))
+    while grids:
+        grid = grids.popleft()
+        if grid.shape == (1, 1):
             bot.paint()
             break
 
@@ -78,7 +78,7 @@ def paint_x(bot: Bot):
         bot.paint()
         bot.up(grid.shape[0] - 2)
         bot.right()
-        queue.append(grid[1:-1, 1:-1])
+        grids.append(grid[1:-1, 1:-1])
 
     # alternative solution:
     #
